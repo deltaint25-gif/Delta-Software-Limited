@@ -1,0 +1,579 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: #ffffff;
+  --bg-alt: #ececea;
+  --surface: #ffffff;
+  --fg: #0b0b0c;
+  /* Darkened from #6b7280, which gave only 4.09:1 against --bg-alt and so
+     failed WCAG AA for normal text on every tinted section. Now 4.88:1 on
+     --bg-alt and 5.78:1 on white. */
+  --muted: #5f6673;
+  --line: rgba(11, 11, 12, 0.1);
+  --nav-bg: rgba(255, 255, 255, 0.85);
+  /* Adaptive tints. The color tokens above are plain hex behind a var(), so
+     Tailwind's `/opacity` modifier can't derive these — they need their own
+     variables to stay theme-aware. */
+  /* Was rgba(11,11,12,0.09), which measured 1.21:1 — invisible to WCAG and
+     close to invisible in practice. These are real numerals, not decoration,
+     so they have to be legible; at 3.64:1 on --bg-alt they clear the 3:1 bar
+     for large text while still reading as clearly de-emphasised next to the
+     solid --fg they resolve to. */
+  --fg-ghost: #7a7a78;
+  --fg-dim: rgba(11, 11, 12, 0.62);
+  --fill-soft: rgba(11, 11, 12, 0.035);
+  --line-strong: rgba(11, 11, 12, 0.22);
+  /* Measured height of the sticky navbar, which sits in normal document
+     flow rather than overlaying the page. Any section that wants to fill
+     "the first view" has to subtract it: `100vh` starts 85-89px down and
+     therefore ends that far BELOW the fold. Two values because the logo
+     steps up a size at `lg`. Kept in sync with Navbar's py-5 + Logo. */
+  --header-h: 85px;
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --header-h: 89px;
+  }
+}
+
+.dark {
+  --bg: #0b0b0c;
+  --bg-alt: #16161a;
+  --surface: #18181c;
+  --fg: #f5f5f4;
+  --muted: #9ca3af;
+  --line: rgba(255, 255, 255, 0.12);
+  --nav-bg: rgba(11, 11, 12, 0.85);
+  --fg-ghost: #75757b;
+  --fg-dim: rgba(245, 245, 244, 0.65);
+  --fill-soft: rgba(255, 255, 255, 0.05);
+  --line-strong: rgba(255, 255, 255, 0.26);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+::selection {
+  background-color: var(--fg);
+  color: var(--bg);
+}
+
+@layer utilities {
+  /*
+   * Fills exactly one viewport MINUS the sticky navbar, which is in normal
+   * flow above it. `min-h-screen` (100vh) on a section that starts 85-89px
+   * down makes the section end that far past the fold, so a vertically
+   * centred hero is pushed half a header-height low and its last row falls
+   * off screen entirely on short displays.
+   *
+   * `svh` second so browsers without it keep the `vh` line: on phones it
+   * measures the viewport with the URL bar EXPANDED, which is the state on
+   * first paint, instead of the collapsed height `vh` reports.
+   */
+  .min-h-first-view {
+    min-height: calc(100vh - var(--header-h));
+    min-height: calc(100svh - var(--header-h));
+  }
+}
+
+@layer components {
+  /* ---------------------------------------------------------------------
+   * Typography scale — every heading/body/label in the app should reach
+   * for one of these instead of assembling font-size/weight/tracking
+   * ad hoc. Sizes are fluid (clamp) so they don't need per-breakpoint
+   * overrides at the call site.
+   * ------------------------------------------------------------------- */
+  .text-display {
+    @apply font-display text-[clamp(2.5rem,1.6rem+5vw,5.5rem)] font-bold leading-[1.02] tracking-tight;
+  }
+  .text-h1 {
+    @apply font-display text-[clamp(2.25rem,1.5rem+3.2vw,3.75rem)] font-bold leading-[1.05] tracking-tight;
+  }
+  .text-h2 {
+    @apply font-display text-[clamp(1.875rem,1.6rem+1.4vw,2.25rem)] font-bold leading-tight tracking-tight;
+  }
+  .text-h3 {
+    @apply font-display text-[clamp(1.25rem,1.1rem+0.6vw,1.5rem)] font-bold leading-snug;
+  }
+  .text-h4 {
+    @apply font-display text-base font-semibold leading-snug;
+  }
+  .text-body-lg {
+    @apply text-lg leading-relaxed text-muted;
+  }
+  .text-body {
+    @apply text-base leading-relaxed text-muted;
+  }
+  .text-small {
+    @apply text-sm leading-normal text-muted;
+  }
+  .text-caption {
+    @apply text-xs font-semibold uppercase tracking-[0.2em] text-muted;
+  }
+  .text-button {
+    @apply text-sm font-semibold leading-none;
+  }
+  .text-nav {
+    @apply text-sm font-medium leading-none;
+  }
+
+  /* ---------------------------------------------------------------------
+   * Section rhythm — consistent vertical breathing room between major
+   * page sections, fluid across breakpoints instead of one-off py-* pairs.
+   * ------------------------------------------------------------------- */
+  .section-py {
+    @apply py-20 sm:py-28 lg:py-32;
+  }
+  .section-py-lg {
+    @apply py-24 sm:py-32 lg:py-40;
+  }
+
+  .btn-pill {
+    @apply inline-flex items-center justify-center rounded-pill px-7 py-3.5 text-sm font-semibold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fg focus-visible:ring-offset-2 focus-visible:ring-offset-bg;
+  }
+
+  .btn-pill-primary {
+    @apply btn-pill bg-accent-red-cta text-white hover:opacity-90 hover:shadow-glow-red active:scale-[0.97] focus-visible:ring-accent-red;
+  }
+
+  .btn-pill-dark {
+    @apply btn-pill bg-ink text-white hover:bg-ink-soft active:scale-[0.97] focus-visible:ring-offset-ink;
+  }
+
+  .btn-pill-outline {
+    @apply btn-pill border border-line text-fg transition-colors hover:border-fg;
+  }
+
+  .tag-pill {
+    @apply inline-flex items-center rounded-pill border border-line-dark bg-white/5 px-4 py-1.5 text-xs font-medium text-white/80;
+  }
+
+  /* Theme-adaptive sibling of .tag-pill, for cards that sit on the page
+     surface rather than on a fixed-dark panel. */
+  .tag-pill-soft {
+    @apply inline-flex items-center rounded-pill border border-line bg-fill-soft px-4 py-1.5 text-xs font-medium text-muted;
+  }
+
+  .eyebrow {
+    @apply text-xs font-semibold uppercase tracking-[0.2em] text-muted;
+  }
+
+  /* Bordered tag pill with a leading dot, used for hero/page-header eyebrows. */
+  .eyebrow-pill {
+    @apply inline-flex items-center gap-2 rounded-pill border border-line px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.15em] text-muted;
+  }
+
+  .eyebrow-pill-dark {
+    @apply inline-flex items-center gap-2 rounded-pill border border-line-dark px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.15em] text-white/70;
+  }
+
+  .eyebrow-pill-dot {
+    @apply h-1.5 w-1.5 flex-shrink-0 rounded-full bg-accent-red;
+  }
+
+  .card-surface {
+    @apply rounded-lg border border-line bg-surface shadow-elevation-1 transition-all duration-200 ease-out hover:-translate-y-1 hover:shadow-elevation-2 dark:shadow-elevation-1-dark dark:hover:shadow-elevation-2-dark;
+  }
+
+  /* Cursor-follow glow for the mega-menu rows — position comes from
+     --glow-x/--glow-y, set directly on the element via JS pointermove. */
+  .liquid-glow::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(160px circle at var(--glow-x, 50%) var(--glow-y, 50%), rgba(239, 65, 54, 0.16), transparent 70%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+  }
+  .liquid-glow:hover::before,
+  .liquid-glow:focus-visible::before {
+    opacity: 1;
+  }
+
+  /* Same cursor-follow mechanic, but a soft white sheen instead of the red
+     glow — for solid accent-red buttons, where another red glow on top of
+     a red background would barely read. */
+  .liquid-glow-light::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(140px circle at var(--glow-x, 50%) var(--glow-y, 50%), rgba(255, 255, 255, 0.28), transparent 70%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+  }
+  .liquid-glow-light:hover::before,
+  .liquid-glow-light:focus-visible::before {
+    opacity: 1;
+  }
+
+  /* Soft ambient glow used sparingly behind hero/CTA headlines. Purely
+     decorative and non-interactive; kept low-opacity by design. */
+  .ambient-glow {
+    @apply pointer-events-none absolute -top-32 left-1/2 h-80 w-80 -translate-x-1/2 rounded-full blur-[100px];
+    background: radial-gradient(
+      circle,
+      rgba(244, 209, 0, 0.35) 0%,
+      rgba(239, 65, 54, 0.16) 55%,
+      transparent 80%
+    );
+  }
+
+  .link-underline {
+    @apply underline-offset-4 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fg focus-visible:ring-offset-2 focus-visible:ring-offset-bg rounded-sm;
+  }
+
+  /* For links inside permanently-dark sections (footer, CTA banners) that don't
+     follow the light/dark toggle, so the ring offset must match that fixed bg. */
+  .link-underline-dark {
+    @apply underline-offset-4 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-ink rounded-sm;
+  }
+
+  /* Frosted glass for panels that always sit on the fixed-dark "ink" surface
+     (case-study cards, hero preview, contact sidebar) - so it reads on both themes. */
+  .glass-dark {
+    @apply relative overflow-hidden rounded-md border border-white/10 bg-white/[0.04] backdrop-blur-xl transition-all duration-300 ease-out hover:border-white/20 hover:bg-white/[0.07];
+  }
+
+  /* Soft floating color blobs used behind glass panels so the blur has
+     something to actually show through. Decorative and non-interactive. */
+  .blob {
+    @apply pointer-events-none absolute rounded-full blur-[90px];
+    animation: blob-float 16s ease-in-out infinite;
+  }
+}
+
+/* Hero headline reveal.
+   Each character sits in an overflow-hidden mask and rises into place. This
+   is CSS rather than GSAP on purpose: the h1 is the page's largest contentful
+   paint, and a JS `from()` tween leaves it clipped out of view until hydration
+   finishes and the timeline runs — measured at 3.4s LCP against a 0.9s FCP.
+   A CSS animation starts as soon as the stylesheet applies, so the headline
+   lands roughly a second earlier and the effect is identical. Index comes from
+   --char-i so the stagger needs no JS either. */
+.hero-char-inner {
+  animation: hero-char-rise 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: calc(var(--char-i, 0) * 14ms);
+}
+
+/* Same reasoning as .hero-char-inner, for the hero paragraph and CTA. The
+   paragraph measured as the page's actual LCP element, and a GSAP
+   `from({opacity: 0})` keeps it at zero opacity until hydration runs the
+   timeline — an element at opacity 0 is not an LCP candidate at all, so the
+   metric could not resolve until then. In CSS it starts with first paint.
+   Transform is deliberately left alone on .hero-cta-item: MagneticButton
+   writes that element's inline transform, and animating the same property
+   here would fight it. */
+.hero-rise {
+  animation: hero-rise 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: var(--rise-delay, 0ms);
+}
+
+/* Transform-only variant for the LCP element itself. Fading in from opacity 0
+   — even in CSS — keeps the element out of the running as an LCP candidate for
+   the whole animation, so the metric lands a animation-length later than the
+   pixels do. Sliding a fully-opaque element costs nothing: it is painted, so
+   it counts, and it still moves. */
+.hero-slide {
+  animation: hero-slide 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: var(--rise-delay, 0ms);
+}
+
+@keyframes hero-slide {
+  from {
+    transform: translateY(14px);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.hero-fade {
+  animation: hero-fade 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: var(--rise-delay, 0ms);
+}
+
+@keyframes hero-rise {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes hero-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-rise,
+  .hero-slide,
+  .hero-fade {
+    animation: none;
+  }
+}
+
+@keyframes hero-char-rise {
+  from {
+    transform: translateY(120%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-char-inner {
+    animation: none;
+  }
+}
+
+@keyframes blob-float {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(4%, -6%) scale(1.08);
+  }
+  66% {
+    transform: translate(-3%, 4%) scale(0.94);
+  }
+}
+
+.brand-pulse {
+  animation: brand-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes brand-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(0.92);
+  }
+}
+
+.hero-bg-glow {
+  animation: hero-glow-pulse 8s ease-in-out infinite;
+}
+
+@keyframes hero-glow-pulse {
+  0%,
+  100% {
+    opacity: 0.85;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.06);
+  }
+}
+
+.hero-bg-ray {
+  animation: hero-ray-sweep 14s ease-in-out infinite;
+}
+
+@keyframes hero-ray-sweep {
+  0%,
+  100% {
+    transform: translateX(0) rotate(-12deg);
+    opacity: 0.6;
+  }
+  50% {
+    transform: translateX(18%) rotate(-12deg);
+    opacity: 1;
+  }
+}
+
+.hero-bg-particle {
+  animation: hero-particle-float linear infinite;
+}
+
+@keyframes hero-particle-float {
+  0% {
+    transform: translate(0, 0);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.6;
+  }
+  90% {
+    opacity: 0.6;
+  }
+  100% {
+    transform: translate(-12px, -60px);
+    opacity: 0;
+  }
+}
+
+.hero-scroll-dot {
+  animation: hero-scroll-bob 1.8s ease-in-out infinite;
+}
+
+@keyframes hero-scroll-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.4;
+  }
+  50% {
+    transform: translateY(6px);
+    opacity: 1;
+  }
+}
+
+/* Hero cursor-FX bubbles (see HeroCursorFX.tsx) — only `transform` and
+   `opacity` are animated, per its performance budget. `--bx`/`--by` and
+   `--bx-end`/`--by-end` are set per-bubble as inline custom properties. */
+@keyframes hero-bubble-pop {
+  0% {
+    transform: translate(0, 0) scale(0.6);
+    opacity: 0;
+  }
+  18% {
+    opacity: 0.9;
+  }
+  55% {
+    transform: translate(var(--bx), var(--by)) scale(1);
+    opacity: 0.75;
+  }
+  100% {
+    transform: translate(var(--bx-end), var(--by-end)) scale(0);
+    opacity: 0;
+  }
+}
+
+.mobile-menu-orbit {
+  animation: mobile-menu-orbit-spin 46s linear infinite;
+}
+
+@keyframes mobile-menu-orbit-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Liquid card treatment, sitewide: a permanent soft red-tinted glow at
+   rest, plus a liquid, color-shifting gradient ring that sweeps around the
+   border on hover. The ring is a ::after sized flush with the card (not
+   larger) so the card's own `overflow-hidden` never clips it, using the
+   standard mask-composite "border only" trick: padding equals the ring
+   thickness, and the mask cuts the content-box out, leaving only the outer
+   band.
+   `.liquid-card` is the theme-adaptive variant — pair it with `card-surface`
+   (or any other adaptive card) and it replaces that card's plain gray
+   elevation shadow with the red-tinted one, brightening in `.dark`.
+   `.liquid-card-dark` is for cards that live in permanently-dark sections
+   (case-study previews, glass panels) and don't follow the light/dark
+   toggle, so it always uses the brighter "dark" shadow values. */
+.liquid-card,
+.liquid-card-dark {
+  position: relative;
+  isolation: isolate;
+}
+
+.liquid-card {
+  box-shadow:
+    0 0 0 1px rgba(239, 65, 54, 0.07),
+    0 24px 48px -24px rgba(239, 65, 54, 0.35);
+}
+
+.dark .liquid-card,
+.liquid-card-dark {
+  box-shadow:
+    0 0 0 1px rgba(239, 65, 54, 0.14),
+    0 24px 48px -24px rgba(239, 65, 54, 0.5);
+}
+
+/* Explicit :hover overrides (matching card-surface:hover's own specificity)
+   so the red glow intensifies on hover instead of card-surface's plain
+   gray shadow-elevation-2 winning the cascade tie. */
+.liquid-card:hover {
+  box-shadow:
+    0 0 0 1px rgba(239, 65, 54, 0.16),
+    0 28px 56px -24px rgba(239, 65, 54, 0.5);
+}
+
+.dark .liquid-card:hover,
+.liquid-card-dark:hover {
+  box-shadow:
+    0 0 0 1px rgba(239, 65, 54, 0.22),
+    0 28px 56px -24px rgba(239, 65, 54, 0.65);
+}
+
+.liquid-card::after,
+.liquid-card-dark::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  padding: 1.5px;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0%,
+    #ef4136 18%,
+    #f4d100 36%,
+    #ef4136 54%,
+    transparent 72%,
+    transparent 100%
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  animation: liquid-card-spin 3.5s linear infinite;
+  animation-play-state: paused;
+}
+
+.liquid-card:hover::after,
+.liquid-card-dark:hover::after {
+  opacity: 1;
+  animation-play-state: running;
+}
+
+@keyframes liquid-card-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .blob {
+    animation: none;
+  }
+
+  .brand-pulse {
+    animation: none;
+  }
+
+  .hero-bg-glow,
+  .hero-bg-ray,
+  .hero-bg-particle,
+  .hero-scroll-dot,
+  .liquid-card::after,
+  .liquid-card-dark::after,
+  .mobile-menu-orbit {
+    animation: none;
+  }
+}
