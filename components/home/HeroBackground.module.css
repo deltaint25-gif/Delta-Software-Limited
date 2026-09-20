@@ -1,0 +1,83 @@
+.photo {
+  background-image: url("/brand/hero-technology-office.png");
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: right center;
+  opacity: 1;
+  /* The supplied image is 2:1; never stretch it to fit the hero. */
+}
+
+/* Protect the copy locally while retaining detail in the photo on the right. */
+.wash {
+  background:
+    radial-gradient(ellipse at 66% 48%, rgba(255, 255, 255, 0.48) 0%, transparent 35%),
+    linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.97) 0%,
+      rgba(255, 255, 255, 0.95) 22%,
+      rgba(255, 255, 255, 0.93) 36%,
+      rgba(255, 255, 255, 0.88) 46%,
+      rgba(255, 255, 255, 0.56) 60%,
+      rgba(255, 255, 255, 0.34) 78%,
+      rgba(255, 255, 255, 0.28) 100%
+    );
+}
+
+/* Give the small footer labels a light surface without moving them. */
+.bottomFade {
+  background: linear-gradient(to top, rgba(255, 255, 255, 0.96) 0%, rgba(255, 255, 255, 0.88) 30%, transparent 100%);
+}
+
+@media (max-width: 1279px) {
+  .photo {
+    /* Fill the lower stacked hero, rather than shrinking to a 2:1 strip.
+       Cover preserves proportions; the focal point keeps the office in view. */
+    top: 20%;
+    bottom: 0;
+    width: 100%;
+    aspect-ratio: auto;
+    background-position: 72% center;
+  }
+
+  /* Copy stacks above the logo below xl, so protection follows that layout. */
+  .wash {
+    background:
+      radial-gradient(ellipse at 50% 74%, rgba(255, 255, 255, 0.48), transparent 42%),
+      linear-gradient(180deg, #fff 0%, rgba(255, 255, 255, 0.96) 40%, rgba(255, 255, 255, 0.8) 55%, rgba(255, 255, 255, 0.18) 78%, rgba(255, 255, 255, 0.08) 100%);
+  }
+
+  .photo::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, #fff, transparent 32%);
+  }
+
+  .bottomFade {
+    height: clamp(3rem, 8vw, 6rem);
+  }
+}
+
+@media (max-width: 639px) {
+  .photo {
+    top: 28%;
+    background-position: 74% center;
+  }
+
+  .wash {
+    background:
+      radial-gradient(ellipse at 50% 78%, rgba(255, 255, 255, 0.28), transparent 42%),
+      linear-gradient(180deg, #fff 0%, rgba(255, 255, 255, 0.97) 45%, rgba(255, 255, 255, 0.9) 56%, rgba(255, 255, 255, 0.55) 68%, rgba(255, 255, 255, 0.24) 84%, rgba(255, 255, 255, 0.18) 100%);
+  }
+}
+
+/* Tall desktop windows need the same proportional treatment as tablets. */
+@media (min-width: 1280px) and (max-aspect-ratio: 1/1) {
+  .photo {
+    top: auto;
+    bottom: 0;
+    width: 100%;
+    aspect-ratio: 2 / 1;
+    background-position: center;
+  }
+}

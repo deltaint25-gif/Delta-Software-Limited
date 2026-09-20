@@ -11,6 +11,8 @@
  * form-action and connect-src stop exfiltration to another origin, and
  * frame-ancestors blocks framing regardless of X-Frame-Options support.
  */
+const isDevelopment = process.env.NODE_ENV === "development";
+
 const CSP = [
   "default-src 'self'",
   "base-uri 'self'",
@@ -20,11 +22,12 @@ const CSP = [
   "img-src 'self' data: blob:",
   "font-src 'self' data:",
   "style-src 'self' 'unsafe-inline'",
-  "script-src 'self' 'unsafe-inline'",
-  "connect-src 'self'",
+  // Next.js development bundles use eval; keep it disabled in production.
+  `script-src 'self' 'unsafe-inline'${isDevelopment ? " 'unsafe-eval'" : ""}`,
+  isDevelopment ? "connect-src 'self' ws://localhost:* ws://127.0.0.1:*" : "connect-src 'self'",
   "worker-src 'self' blob:",
   "manifest-src 'self'",
-  "upgrade-insecure-requests",
+  ...(isDevelopment ? [] : ["upgrade-insecure-requests"]),
 ].join("; ");
 
 // Browser features this site never uses. Denying them means an injected
@@ -58,11 +61,15 @@ const SECURITY_HEADERS = [
   { key: "X-DNS-Prefetch-Control", value: "on" },
   // Vercel already sends HSTS; declaring it here keeps the guarantee in the
   // repo rather than in a dashboard setting nobody can see from the code.
-  { key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains; preload" },
+  ...(isDevelopment ? [] : [
+    { key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains; preload" },
+  ]),
 ];
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Keep production builds from overwriting a running dev server's assets.
+  distDir: isDevelopment ? ".next-dev" : ".next",
   reactStrictMode: true,
   poweredByHeader: false,
   async headers() {

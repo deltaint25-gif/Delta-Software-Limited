@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
+import styles from "./HeroBackground.module.css";
 
 const PARTICLE_COUNT = 10;
 
@@ -20,30 +21,22 @@ function useParticles() {
 }
 
 /**
- * Purely decorative, layered backdrop for the light-theme hero: a soft
- * warm-white gradient mesh, a faint diagonal grid, a red ambient bloom
+ * Purely decorative, layered backdrop for the light-theme hero: an office
+ * photograph with a responsive white wash, a faint grid, a red ambient bloom
  * behind the headline, drifting blur orbs, floating particles, and a grain
  * overlay for a non-flat surface. Everything here is aria-hidden and
  * pointer-events-none; particle drift and the ray sweep are switched off
- * under prefers-reduced-motion via CSS. The bottom edge fades to `ink` so
- * the handoff into the (permanently dark) StatsBar section below reads as
- * a deliberate transition rather than a seam.
+ * under prefers-reduced-motion via CSS. The bottom edge stays light to
+ * preserve footer readability in the permanently white hero.
  */
 export default function HeroBackground() {
   const particles = useParticles();
 
   return (
     <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
-      {/* Base warm-white gradient mesh */}
-      <div
-        className="absolute inset-0"
-        style={{
-          background:
-            "radial-gradient(120% 90% at 90% -10%, rgba(239,65,54,0.06) 0%, transparent 55%), " +
-            "radial-gradient(90% 70% at 0% 100%, rgba(15,23,42,0.05) 0%, transparent 55%), " +
-            "linear-gradient(180deg, #ffffff 0%, #fafafa 70%, #f5f5f5 100%)",
-        }}
-      />
+      {/* Photo and white wash stay below all existing content and effects. */}
+      <div className={`${styles.photo} absolute inset-0`} />
+      <div className={`${styles.wash} absolute inset-0`} />
 
       {/* Faint diagonal grid for a technical, blueprint-like texture */}
       <svg className="absolute inset-0 h-full w-full opacity-[0.4]" aria-hidden="true">
@@ -101,12 +94,8 @@ export default function HeroBackground() {
         <rect width="100%" height="100%" filter="url(#hero-grain)" />
       </svg>
 
-      {/* Bottom fade — hands off into StatsBar below. Uses `bg-alt` (the
-          adaptive token, not the hardcoded `ink`) since StatsBar is now a
-          normal theme-adaptive section: light by default, matching this
-          fade to a barely-there tint, and correctly dark if the visitor
-          has toggled dark mode. */}
-      <div className="absolute inset-x-0 bottom-0 h-56 bg-gradient-to-t from-bg-alt to-transparent" />
+      {/* Light footer wash remains consistent with the white hero. */}
+      <div className={`${styles.bottomFade} absolute inset-x-0 bottom-0 h-56`} />
     </div>
   );
 }

@@ -1,12 +1,12 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowRight, ChevronDown } from "lucide-react";
 import { NAV_LINKS, SERVICE_GROUPS, SERVICE_DETAILS, PROJECTS } from "@/lib/constants";
-import Logo from "@/components/Logo";
 import ThemeToggle from "@/components/ThemeToggle";
 import ServiceIcon, { type ServiceIconName } from "@/components/ServiceIcon";
 import MockupFrame from "@/components/MockupFrame";
@@ -79,14 +79,14 @@ function MegaMenuRow({ title, slug, description, icon, onActivate, onDeactivate 
       </span>
       <span className="min-w-0 flex-1">
         <span className="flex items-center gap-1.5">
-          <span className="block font-display text-sm font-semibold text-fg">{title}</span>
+          <span className="block font-display text-sm font-bold text-fg">{title}</span>
           <ArrowRight
             className="h-3 w-3 flex-shrink-0 text-accent-red opacity-0 transition-all duration-300 ease-out group-hover:translate-x-0.5 group-hover:opacity-100"
             aria-hidden="true"
           />
         </span>
         {description && (
-          <span className="mt-0.5 block text-xs leading-snug text-muted transition-colors duration-300 group-hover:text-fg">
+          <span className="mt-0.5 block text-xs font-medium leading-relaxed text-muted transition-colors duration-300 group-hover:text-fg">
             {description}
           </span>
         )}
@@ -193,15 +193,23 @@ export default function Navbar() {
         className="sticky top-0 z-50 border-b border-line bg-[var(--nav-bg)] backdrop-blur transition-shadow duration-300"
       >
         <nav
-          className={`mx-auto flex max-w-6xl items-center justify-between px-4 transition-[padding] duration-300 ease-out sm:px-6 lg:px-8 ${
-            shrink ? "py-3" : "py-5"
+          className={`mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 transition-[padding] duration-300 ease-out sm:px-6 lg:px-8 ${
+            shrink ? "py-2" : "py-3"
           }`}
         >
-          <Link href="/" aria-label="Delta Software Limited home" data-cursor-hover>
-            <Logo />
+          <Link href="/" aria-label="Delta Software Limited home" data-cursor-hover className="shrink-0">
+            <Image
+              src="/brand/mainlogo.png"
+              alt="Delta Software Ltd"
+              width={1946}
+              height={808}
+              unoptimized
+              priority
+              className="block h-auto w-44 object-contain sm:w-52"
+            />
           </Link>
 
-          <ul className="hidden items-center gap-2 lg:flex">
+          <ul className="hidden shrink-0 items-center gap-1 lg:flex xl:gap-2">
             {NAV_LINKS.map((link) => {
               const isServices = link.label === "Services";
               const isActive = link.href === "/" ? pathname === "/" : pathname.startsWith(link.href);
@@ -219,8 +227,8 @@ export default function Navbar() {
                       aria-current={isActive ? "page" : undefined}
                       onFocus={openMega}
                       onKeyDown={handleTriggerKeyDown}
-                      className={`link-underline flex items-center gap-1.5 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
-                        isActive ? "text-fg" : "text-muted hover:text-fg"
+                      className={`header-nav-link flex items-center gap-1.5 rounded-md px-2 py-3 text-sm font-bold leading-5 xl:px-3 ${
+                        isActive ? "text-fg" : "text-muted"
                       }`}
                     >
                       {link.label}
@@ -241,8 +249,8 @@ export default function Navbar() {
                     href={link.href}
                     data-cursor-hover
                     aria-current={isActive ? "page" : undefined}
-                    className={`link-underline block rounded-md px-3 py-2 text-sm font-medium transition-colors ${
-                      isActive ? "text-fg" : "text-muted hover:text-fg"
+                    className={`header-nav-link block rounded-md px-2 py-3 text-sm font-bold leading-5 xl:px-3 ${
+                      isActive ? "text-fg" : "text-muted"
                     }`}
                   >
                     {link.label}
@@ -252,19 +260,19 @@ export default function Navbar() {
             })}
           </ul>
 
-          <div className="hidden items-center gap-4 lg:flex">
+          <div className="hidden shrink-0 items-center gap-3 lg:flex xl:gap-4">
             {time && (
-              <span className="font-mono text-xs text-muted" suppressHydrationWarning>
+              <span className="whitespace-nowrap font-mono text-xs font-semibold tabular-nums text-muted" suppressHydrationWarning>
                 Dhaka &middot; {time}
               </span>
             )}
             <ThemeToggle />
-            <Link href="/contact" data-cursor-hover className="btn-pill-primary">
+            <Link href="/contact" data-cursor-hover className="btn-pill-primary min-h-11 whitespace-nowrap px-5 py-3 font-bold">
               Contact Us
             </Link>
           </div>
 
-          <div className="flex items-center gap-3 lg:hidden">
+          <div className="flex shrink-0 items-center gap-2 lg:hidden">
             <ThemeToggle />
             <button
               type="button"
@@ -309,7 +317,7 @@ export default function Navbar() {
               >
                 {SERVICE_GROUPS.map((group) => (
                   <div key={group.title}>
-                    <p className="eyebrow">{group.title}</p>
+                    <p className="eyebrow font-bold">{group.title}</p>
                     <div className="mt-4 flex flex-col gap-1">
                       {group.services.map((title) => {
                         const detail = SERVICE_DETAILS.find((service) => service.title === title);
@@ -343,7 +351,7 @@ export default function Navbar() {
                       animate={{ opacity: 1 }}
                       exit={{ opacity: 0 }}
                       transition={{ duration: 0.2 }}
-                      className="eyebrow"
+                      className="eyebrow font-bold"
                     >
                       {previewEyebrow}
                     </motion.p>
@@ -371,10 +379,10 @@ export default function Navbar() {
                       transition={{ duration: 0.25, ease: MEGA_EASE }}
                     >
                       <p className="mt-4 font-display text-base font-bold text-fg">{previewTitle}</p>
-                      <p className="mt-1.5 text-xs leading-relaxed text-muted">{previewDescription}</p>
+                      <p className="mt-1.5 text-xs font-medium leading-relaxed text-muted">{previewDescription}</p>
                     </motion.div>
                   </AnimatePresence>
-                  <span className="link-underline mt-4 inline-flex items-center gap-1.5 text-xs font-semibold text-fg">
+                  <span className="link-underline mt-4 inline-flex items-center gap-1.5 text-xs font-bold text-fg">
                     {activeService ? "Explore service" : "View case study"}
                     <ArrowRight
                       className="h-3 w-3 transition-transform duration-300 ease-out group-hover:translate-x-0.5"

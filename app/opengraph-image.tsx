@@ -1,6 +1,9 @@
 import { ImageResponse } from "next/og";
 import { SITE_NAME } from "@/lib/constants";
 
+// Avoid the Node image renderer's file-URL handling on Windows.
+export const runtime = "edge";
+
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
